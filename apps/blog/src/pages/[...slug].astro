@@ -1,0 +1,20 @@
+---
+import Base from '@control-plane/shared/Base.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+<Base title={`${post.data.title} — Control Plane`} description={post.data.description}>
+  <h1 class="cp-title">{post.data.title}</h1>
+  <p class="cp-post-date">{post.data.pubDate.toISOString().slice(0, 10)}</p>
+  <Content />
+</Base>

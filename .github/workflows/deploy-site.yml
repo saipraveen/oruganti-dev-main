@@ -1,0 +1,55 @@
+name: Deploy site (oruganti.dev)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/site/**"
+      - "packages/shared/**"
+      - ".github/workflows/deploy-site.yml"
+  repository_dispatch:
+    types: [resume-updated]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build site
+        run: npm run build --workspace=apps/site
+
+      # Pull the resume repo's latest static build output and place it at
+      # /about/resume/ in this build. The resume repo (saipraveen/resume)
+      # keeps its own independent GitHub Actions pipeline — this step only
+      # reads its most recent successful build artifact, it never modifies
+      # that repo. Requires a PAT with read access to that repo stored as
+      # the RESUME_REPO_TOKEN secret (a fine-grained PAT scoped to
+      # contents:read / actions:read on the resume repo is enough).
+      - name: Fetch latest resume build
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          github_token: ${{ secrets.RESUME_REPO_TOKEN }}
+          repo: saipraveen/resume
+          workflow: build.yml
+          branch: main
+          name: resume-dist
+          path: apps/site/dist/about/resume
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy apps/site/dist --project-name=oruganti-main

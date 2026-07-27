@@ -1,0 +1,28 @@
+---
+export interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = "Control Plane — From Code to Controls" } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="stylesheet" href="/global.css" />
+  </head>
+  <body>
+    <nav class="cp-nav">
+      <a href="https://oruganti.dev/">Home</a>
+      <a href="https://oruganti.dev/about/">About</a>
+      <a href="https://oruganti.dev/about/resume/">Resume</a>
+      <a href="https://blog.oruganti.dev/">Control Plane (Blog)</a>
+    </nav>
+    <main class="cp-wrap">
+      <slot />
+    </main>
+  </body>
+</html>

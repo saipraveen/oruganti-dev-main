@@ -1,0 +1,16 @@
+{
+  "name": "control-plane-blog",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "prebuild": "cp ../../packages/shared/src/global.css public/global.css",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@control-plane/shared": "*",
+    "astro": "^4.15.0"
+  }
+}

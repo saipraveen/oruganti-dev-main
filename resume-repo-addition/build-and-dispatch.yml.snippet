@@ -1,0 +1,18 @@
+# Add these steps to the END of the existing build job in the `resume` repo's
+# workflow (after whatever step currently produces the static build output —
+# adjust `path:` below to match your actual output directory).
+
+      - name: Upload build output as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: resume-dist
+          path: <YOUR_BUILD_OUTPUT_DIR>   # e.g. dist, build, public, _site
+          retention-days: 30
+
+      - name: Notify oruganti-dev-main to redeploy
+        if: github.ref == 'refs/heads/main'
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.DISPATCH_TOKEN }}
+          repository: saipraveen/oruganti-dev-main
+          event-type: resume-updated

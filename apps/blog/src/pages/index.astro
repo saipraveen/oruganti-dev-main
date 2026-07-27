@@ -1,0 +1,25 @@
+---
+import Base from '@control-plane/shared/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+<Base title="Control Plane" description="From Code to Controls">
+  <h1 class="cp-title">Control Plane</h1>
+  <p class="cp-tagline">From Code to Controls</p>
+  <p>
+    Documenting a pivot from 16+ years of software engineering into IT Audit
+    and technology assurance — one control, and the engineering reality
+    behind it, at a time.
+  </p>
+
+  <ul class="cp-post-list">
+    {posts.map((post) => (
+      <li>
+        <div class="cp-post-date">{post.data.pubDate.toISOString().slice(0, 10)}</div>
+        <a href={`/${post.slug}/`}>{post.data.title}</a>
+      </li>
+    ))}
+  </ul>
+</Base>

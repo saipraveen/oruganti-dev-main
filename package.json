@@ -1,0 +1,14 @@
+{
+  "name": "oruganti-dev-main",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:site": "npm run dev --workspace=apps/site",
+    "dev:blog": "npm run dev --workspace=apps/blog",
+    "build:site": "npm run build --workspace=apps/site",
+    "build:blog": "npm run build --workspace=apps/blog"
+  }
+}
