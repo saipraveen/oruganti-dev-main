@@ -42,7 +42,7 @@ jobs:
         with:
           github_token: ${{ secrets.RESUME_REPO_TOKEN }}
           repo: saipraveen/resume
-          workflow: build.yml
+          workflow: release.yml
           branch: main
           name: resume-dist
           path: apps/site/dist/about/resume
