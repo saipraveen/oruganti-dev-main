@@ -1,8 +1,13 @@
 # Addition needed in the `resume` repo (not this repo)
 
-This folder is reference only — it does not get pushed as part of
-`oruganti-dev-main`. It shows the small addition your existing `resume`
-repo needs so `deploy-site.yml` here can pull its latest build.
+**Status: already applied.** The `resume` repo's `release.yml` (main-branch
+workflow) now uploads a `resume-dist` artifact and fires the
+`repository_dispatch` below on every push to `main`; its old standalone
+Cloudflare Pages deploy (and the "coming soon" filler page it served at the
+`oruganti.dev` apex) have been removed now that this repo owns the root
+site. This folder is kept as reference only — it does not get pushed as
+part of `oruganti-dev-main`. It shows the small addition your existing
+`resume` repo needs so `deploy-site.yml` here can pull its latest build.
 
 Your `resume` repo's existing workflow presumably already builds the static
 resume site. Two things need to be added to that workflow (see
