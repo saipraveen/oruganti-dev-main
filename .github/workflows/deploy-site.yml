@@ -52,4 +52,11 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/site/dist --project-name=oruganti-main
+          # --branch is required: without it, wrangler has to infer the
+          # branch from git context in the runner, which is unreliable in CI
+          # (especially for repository_dispatch-triggered runs) and can
+          # silently produce a non-production deployment — reachable at its
+          # own <hash>.oruganti-main.pages.dev URL but never promoted to the
+          # oruganti.dev custom domain, which only ever serves the current
+          # Production deployment.
+          command: pages deploy apps/site/dist --project-name=oruganti-main --branch=main
