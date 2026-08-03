@@ -37,8 +37,9 @@ jobs:
           TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           TF_VAR_cloudflare_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
 
-      # Apply only on pushes to main, after review via the plan above.
-      - if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      # Apply on pushes to main (after review via the plan above), or on a
+      # manual re-run (e.g. retrying after fixing drift/an external conflict).
+      - if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: terraform apply -auto-approve
         env:
           TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
