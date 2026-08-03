@@ -13,7 +13,7 @@ terraform {
   # then fill in the values below (or set TF_CLOUD_ORGANIZATION /
   # TF_WORKSPACE env vars in CI instead of hardcoding).
   cloud {
-    organization = "REPLACE_WITH_YOUR_HCP_TERRAFORM_ORG"
+    organization = "oruganti"
     workspaces {
       name = "oruganti-dev-main"
     }
