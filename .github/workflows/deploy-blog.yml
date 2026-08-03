@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  deployments: write
 
 jobs:
   deploy:
@@ -28,10 +29,13 @@ jobs:
       - name: Build blog
         run: npm run build --workspace=apps/blog
 
+      # See deploy-site.yml for why this uses cloudflare/pages-action
+      # instead of cloudflare/wrangler-action.
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # See deploy-site.yml for why --branch is required here.
-          command: pages deploy apps/blog/dist --project-name=oruganti-blog --branch=main
+          projectName: oruganti-blog
+          directory: apps/blog/dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

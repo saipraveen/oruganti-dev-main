@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: read
+  deployments: write
 
 jobs:
   deploy:
@@ -47,16 +48,21 @@ jobs:
           name: resume-dist
           path: apps/site/dist/about/resume
 
+      # Switched from cloudflare/wrangler-action to cloudflare/pages-action:
+      # wrangler-action deploys were correctly tagged "Production" in
+      # Cloudflare's dashboard (branch matched production_branch) but never
+      # got promoted to the deployment actually served at the custom domain
+      # / <project>.pages.dev — new deploys just sat alongside the old
+      # active one indefinitely, and manually forcing promotion via the
+      # dashboard's "Roll back to this deployment" also failed. pages-action
+      # is the exact tool that reliably promoted deploys to production for
+      # this same Cloudflare account previously (saipraveen/resume's old
+      # release.yml, before this repo took over serving oruganti.dev).
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # --branch is required: without it, wrangler has to infer the
-          # branch from git context in the runner, which is unreliable in CI
-          # (especially for repository_dispatch-triggered runs) and can
-          # silently produce a non-production deployment — reachable at its
-          # own <hash>.oruganti-main.pages.dev URL but never promoted to the
-          # oruganti.dev custom domain, which only ever serves the current
-          # Production deployment.
-          command: pages deploy apps/site/dist --project-name=oruganti-main --branch=main
+          projectName: oruganti-main
+          directory: apps/site/dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
