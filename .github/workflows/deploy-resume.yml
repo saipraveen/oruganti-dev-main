@@ -13,11 +13,35 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      # Downloads the latest resume-dist artifact (index.html,
+      # Downloads the resume-dist artifact (index.html,
       # saipraveenos-resume.pdf, _headers) published by the separate
       # saipraveen/resume repo's release.yml. That repo owns the content;
-      # this workflow only deploys its most recent successful build output.
-      - name: Fetch latest resume build
+      # this workflow only deploys its build output.
+      #
+      # Two mutually exclusive paths, split because the action forbids
+      # combining `run_id` with `branch`:
+      #
+      # 1. repository_dispatch: pin to the exact triggering run via
+      #    run_id from client_payload. Searching by branch/workflow
+      #    instead would race — the dispatch fires from within that run's
+      #    build job, before its release job finishes, so a search-based
+      #    lookup finds the *previous* run's artifact, not this one's.
+      #    The artifact is already uploaded by the time the dispatch
+      #    fires, regardless of whether the overall run has completed.
+      # 2. workflow_dispatch (manual): no run_id available, so fall back
+      #    to searching for the latest successful run on `branch`.
+      - name: Fetch resume build (from triggering run)
+        if: github.event_name == 'repository_dispatch'
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          github_token: ${{ secrets.RESUME_REPO_TOKEN }}
+          repo: saipraveen/resume
+          run_id: ${{ github.event.client_payload.run_id }}
+          name: resume-dist
+          path: resume-dist
+
+      - name: Fetch latest resume build (manual run fallback)
+        if: github.event_name != 'repository_dispatch'
         uses: dawidd6/action-download-artifact@v6
         with:
           github_token: ${{ secrets.RESUME_REPO_TOKEN }}
