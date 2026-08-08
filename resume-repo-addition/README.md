@@ -7,18 +7,20 @@ Cloudflare Pages deploy (and the "coming soon" filler page it served at the
 `oruganti.dev` apex) have been removed now that this repo owns the root
 site. This folder is kept as reference only — it does not get pushed as
 part of `oruganti-dev-main`. It shows the small addition your existing
-`resume` repo needs so `deploy-site.yml` here can pull its latest build.
+`resume` repo needs so `deploy-resume.yml` here can pull its latest build.
 
 Your `resume` repo's existing workflow presumably already builds the static
 resume site. Two things need to be added to that workflow (see
 `build-and-dispatch.yml.snippet` for a full example):
 
-1. **Upload the build output as an artifact** named `resume-dist`, so
-   `dawidd6/action-download-artifact` in this repo's `deploy-site.yml` can
-   fetch it.
+1. **Upload the build output as an artifact** named `resume-dist`
+   (`index.html` + PDF + a `_headers` file with cache-control rules), so
+   `dawidd6/action-download-artifact` in this repo's `deploy-resume.yml` can
+   fetch it and deploy it as-is to the dedicated `oruganti-resume`
+   Cloudflare Pages project (`resume.oruganti.dev`).
 2. **Fire a `repository_dispatch` event** to `oruganti-dev-main` after a
-   successful build, so the site redeploys automatically whenever the resume
-   changes (rather than only on the site repo's own pushes).
+   successful build, so the resume site redeploys automatically whenever the
+   resume changes (rather than only on manual `workflow_dispatch` runs here).
 
 ## Secrets needed
 

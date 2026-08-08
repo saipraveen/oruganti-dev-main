@@ -1,9 +1,11 @@
 # oruganti-dev-main
 
-Source for **oruganti.dev** (home + `/about/`) and **blog.oruganti.dev**
-("Control Plane" — *From Code to Controls*). The existing `resume` repo is
-untouched and keeps serving `oruganti.dev/about/resume/` via a build-time
-composition step (see below) — no runtime proxy/Worker involved.
+Source for **oruganti.dev** (home + `/about/`), **blog.oruganti.dev**
+("Control Plane" — *From Code to Controls*), and **resume.oruganti.dev**.
+The existing `resume` repo is untouched and its build output is deployed
+here as its own dedicated Cloudflare Pages project (see below) — no runtime
+proxy/Worker involved. The old `oruganti.dev/about/resume` URL still works,
+as a static 301 redirect to `resume.oruganti.dev`.
 
 ## Structure
 
@@ -16,13 +18,19 @@ terraform/    → Cloudflare Pages projects, custom domains, DNS, zone security 
 resume-repo-addition/ → snippet + instructions for the *separate* resume repo
 ```
 
-## How `/about/resume/` gets served without a Cloudflare Worker
+## How `resume.oruganti.dev` gets served without a Cloudflare Worker
 
 1. `resume` repo builds as it always has, uploads its output as a GitHub
-   Actions artifact, and fires a `repository_dispatch` event here.
-2. `deploy-site.yml` in this repo downloads that artifact and copies it into
-   `apps/site/dist/about/resume/` *after* `astro build` runs, then deploys
-   the combined output as one Cloudflare Pages project.
+   Actions artifact (`resume-dist`), and fires a `repository_dispatch`
+   event here.
+2. `deploy-resume.yml` in this repo downloads that artifact and deploys it,
+   unmodified, to its own dedicated Cloudflare Pages project
+   (`oruganti-resume`), bound to the `resume.oruganti.dev` custom domain —
+   the same pattern used for `blog.oruganti.dev`.
+3. `oruganti.dev/about/resume` is a static 301 redirect to
+   `resume.oruganti.dev`, defined in `apps/site/public/_redirects` and
+   served as part of the main site's own Cloudflare Pages project
+   (`oruganti-main`) — it no longer bundles resume content directly.
 
 See `resume-repo-addition/README.md` for the small addition needed in the
 `resume` repo itself.
@@ -43,7 +51,11 @@ See `resume-repo-addition/README.md` for the small addition needed in the
    - `DISPATCH_TOKEN` (PAT allowed to send `repository_dispatch` to this repo)
 5. Push to `main` — `terraform.yml` provisions the Cloudflare Pages
    projects/domains/DNS/zone settings, then `deploy-site.yml` and
-   `deploy-blog.yml` build and publish the two sites.
+   `deploy-blog.yml` build and publish the two Astro sites; `deploy-resume.yml`
+   publishes the resume once triggered by the `resume` repo's dispatch (or
+   run manually via `workflow_dispatch`) — it needs the `oruganti-resume`
+   Pages project to exist first, so run/wait for `terraform.yml` before the
+   first resume deploy.
 6. Add the snippet in `resume-repo-addition/` to the `resume` repo so it
    notifies this repo on every future resume change.
 

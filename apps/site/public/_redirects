@@ -1,1 +1,2 @@
-/about/resume  /about/resume/  301
+/about/resume        https://resume.oruganti.dev/   301
+/about/resume/*      https://resume.oruganti.dev/:splat   301
