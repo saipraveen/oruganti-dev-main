@@ -1,7 +1,0 @@
-# Cache the PDF for 1 hour — balances freshness with performance
-/about/resume/saipraveenos-resume.pdf
-  Cache-Control: public, max-age=3600
-
-# HTML pages — always revalidate to pick up new deployments quickly
-/about/resume/
-  Cache-Control: public, max-age=0, must-revalidate

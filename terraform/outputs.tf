@@ -5,3 +5,7 @@ output "main_site_url" {
 output "blog_url" {
   value = "https://${cloudflare_pages_domain.blog_domain.domain}"
 }
+
+output "resume_url" {
+  value = "https://${cloudflare_pages_domain.resume_domain.domain}"
+}

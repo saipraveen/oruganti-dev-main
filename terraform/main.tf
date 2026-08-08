@@ -16,6 +16,12 @@ resource "cloudflare_pages_project" "blog" {
   production_branch = "main"
 }
 
+resource "cloudflare_pages_project" "resume" {
+  account_id        = var.cloudflare_account_id
+  name              = "oruganti-resume"
+  production_branch = "main"
+}
+
 # --- Custom domains -------------------------------------------------------
 
 resource "cloudflare_pages_domain" "main_site_domain" {
@@ -28,6 +34,12 @@ resource "cloudflare_pages_domain" "blog_domain" {
   account_id   = var.cloudflare_account_id
   project_name = cloudflare_pages_project.blog.name
   domain       = "blog.oruganti.dev"
+}
+
+resource "cloudflare_pages_domain" "resume_domain" {
+  account_id   = var.cloudflare_account_id
+  project_name = cloudflare_pages_project.resume.name
+  domain       = "resume.oruganti.dev"
 }
 
 # --- DNS --------------------------------------------------------------
@@ -48,6 +60,14 @@ resource "cloudflare_record" "blog" {
   name    = "blog"
   type    = "CNAME"
   content = "${cloudflare_pages_project.blog.name}.pages.dev"
+  proxied = true
+}
+
+resource "cloudflare_record" "resume" {
+  zone_id = var.cloudflare_zone_id
+  name    = "resume"
+  type    = "CNAME"
+  content = "${cloudflare_pages_project.resume.name}.pages.dev"
   proxied = true
 }
 

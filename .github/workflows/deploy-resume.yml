@@ -1,0 +1,39 @@
+name: Deploy resume (resume.oruganti.dev)
+
+on:
+  repository_dispatch:
+    types: [resume-updated]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Downloads the latest resume-dist artifact (index.html,
+      # saipraveenos-resume.pdf, _headers) published by the separate
+      # saipraveen/resume repo's release.yml. That repo owns the content;
+      # this workflow only deploys its most recent successful build output.
+      - name: Fetch latest resume build
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          github_token: ${{ secrets.RESUME_REPO_TOKEN }}
+          repo: saipraveen/resume
+          workflow: release.yml
+          branch: main
+          name: resume-dist
+          path: resume-dist
+
+      # See deploy-site.yml for why this uses cloudflare/pages-action
+      # instead of cloudflare/wrangler-action.
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: oruganti-resume
+          directory: resume-dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

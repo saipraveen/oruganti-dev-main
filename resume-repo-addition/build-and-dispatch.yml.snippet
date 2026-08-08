@@ -7,6 +7,7 @@
           mkdir -p dist-resume
           cp site/about/resume/index.html dist-resume/
           cp out/saipraveenos-resume.pdf dist-resume/
+          cp site/_headers dist-resume/
 
       - name: Upload resume site artifact
         uses: actions/upload-artifact@v5
