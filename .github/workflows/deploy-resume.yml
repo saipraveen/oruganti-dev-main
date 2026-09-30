@@ -51,13 +51,19 @@ jobs:
           name: resume-dist
           path: resume-dist
 
-      # See deploy-site.yml for why this uses cloudflare/pages-action
-      # instead of cloudflare/wrangler-action.
+      # cloudflare/pages-action was removed from GitHub (Sep 2026: "Unable
+      # to resolve action cloudflare/pages-action, not found"). That action
+      # only ran `wrangler pages deploy` under the hood, so call the CLI
+      # directly with the same arguments it used. --branch=main matches the
+      # Pages project's production_branch (terraform/main.tf), which is what
+      # makes the deployment the one served on the custom domain.
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: oruganti-resume
-          directory: resume-dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: >-
+          npx --yes wrangler@4 pages deploy resume-dist
+          --project-name=oruganti-resume
+          --branch=main
+          --commit-hash=${{ github.sha }}
+          --commit-dirty=true
